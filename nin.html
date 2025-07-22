@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>เซอร์ไพรส์วันเกิด!</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap');
+
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(-45deg, #ffe6f0, #ffeaea, #fff5e6, #ffe0f0);
+      background-size: 400% 400%;
+      animation: backgroundMove 10s ease infinite;
+      text-align: center;
+      padding: 60px 20px;
+      color: #333;
+      overflow: hidden;
+    }
+
+    @keyframes backgroundMove {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    h1 {
+      font-size: 3em;
+      color: #ff66a3;
+      animation: fadeIn 2s ease;
+    }
+
+    p {
+      font-size: 1.2em;
+      animation: fadeIn 3s ease;
+    }
+
+    #story {
+      margin-top: 30px;
+      font-size: 1.4em;
+      min-height: 150px;
+      white-space: pre-wrap;
+      color: #444;
+    }
+
+    button {
+      padding: 15px 35px;
+      font-size: 1.2em;
+      background-color: #ff66a3;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255, 102, 163, 0.5);
+      transition: transform 0.2s ease;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎉 สุขสันต์วันเกิดนิน 🎂</h1>
+  <p>นี่คือสิ่งที่เตรียมไว้ในวันเกิดเองพร้อมรึยังง?</p>
+  <button onclick="nextScene()">กดที่ตรงนี้สินิน</button>
+  <div id="story"></div>
+  <canvas id="fireworks"></canvas>
+
+  <script>
+    const scenes = [
+      "ขอบคุณ... ขอบคุณมากจริงๆที่คุยเล่นกับเราตลอดมา...",
+      "นี่คือสิ่งที่เราเตรียมให้เองได้นิน",
+      "ถึงมัน ... จะไม่ได้มากอะไรก็ตามเเต่",
+      "อยากให้เองมีความสุขกับวันเกิดให้มาก ทําอะไรทําไปเลย",
+      "เหนื่อยก็พัก ถ้ารู้สึกว่าตัวเองไม่ไหวลองนอนกลิ้งบนเตียงสัก 3 รอบ",
+      "เเล้วทีนี้ ... สุขสันต์วันเกิดนะนิน\" 🎉🎉🎉",
+      "ขอให้เองสมปราถนาทุกๆอย่างที่ตัวเองขอ",
+      "มีความสุขให้มากๆกับวันเกิดปีนี้ละ \nเป็นเกียรติมากๆที่เองได้คอยช่วยเหลือเราตลอดมา "
+    ];
+
+    let index = 0;
+    let isTyping = false;
+
+    function nextScene() {
+      if (isTyping) return;
+      if (index < scenes.length) {
+        typeText(scenes[index]);
+        index++;
+        if (index === scenes.length) {
+          setTimeout(() => launchFireworks(), 1000);
+        }
+      } else {
+        typeText("ถ้าได้อ่านถึงตอนนี้ก็ขอขอบคุณมากๆจริงๆนะที่อ่านจนจบขอบคุณจริงๆ");
+      }
+    }
+
+    function typeText(text) {
+      isTyping = true;
+      const el = document.getElementById("story");
+      el.textContent = "";
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i < text.length) {
+          el.textContent += text[i];
+          i++;
+        } else {
+          clearInterval(interval);
+          isTyping = false;
+        }
+      }, 40);
+    }
+
+    // Fireworks effect
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+
+    function launchFireworks() {
+      resizeCanvas();
+      for (let i = 0; i < 20; i++) {
+        particles.push(createParticle());
+      }
+      animateFireworks();
+    }
+
+    function createParticle() {
+      const angle = Math.random() * 2 * Math.PI;
+      const speed = Math.random() * 5 + 2;
+      return {
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
+        dx: Math.cos(angle) * speed,
+        dy: Math.sin(angle) * speed,
+        radius: Math.random() * 4 + 2,
+        life: 100,
+        color: `hsl(${Math.random() * 360}, 100%, 70%)`
+      };
+    }
+
+    function animateFireworks() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        p.life--;
+      });
+      particles = particles.filter(p => p.life > 0);
+      if (particles.length > 0) {
+        requestAnimationFrame(animateFireworks);
+      }
+    }
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+  </script>
+</body>
+</html>
